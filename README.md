@@ -124,7 +124,35 @@ As decisões de arquitetura de software seguem as ADRs homologadas na documenta�
 
 ### Execução Local
 
-*(As etapas detalhadas de instalação de dependências e inicialização dos serviços individuais serão descritas conforme o código-fonte for disponibilizado no repositório).*
+Caso prefira rodar diretamente no seu ambiente de desenvolvimento:
+
+1. **Suba o banco de dados PostgreSQL (isolado via Docker):**
+   ```bash
+   docker compose up -d postgres
+   ```
+
+2. **Inicie o Backend:**
+   ```bash
+   cd backend
+   npm install
+   npm run dev
+   ```
+   *O backend estará acessível em `http://localhost:8000`.*
+
+3. **Inicie o Frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   *O frontend estará acessível em `http://localhost:3000`.*
+
+---
+
+## 📑 Documento de Planejamento da Sprint
+
+Para mais detalhes sobre as justificativas de engenharia, cronograma e estratégia de defesa na aula supervisionada, consulte o documento:
+* [Planejamento de Implementação — Sprint 30% dos Requisitos](file:///c:/Users/Thales/Documents/.UFBA/Graduação/26.2/Engenharia de Software 1/Trabalho 3/Docs/PLANEJAMENTO_SPRINT_30.md)
 
 ---
 

@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: veridit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-veridit}
+      POSTGRES_USER: ${POSTGRES_USER:-veridit_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-veridit_secret}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-veridit_user} -d ${POSTGRES_DB:-veridit}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: veridit-backend
+    restart: unless-stopped
+    environment:
+      PORT: 8000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-veridit}
+      POSTGRES_USER: ${POSTGRES_USER:-veridit_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-veridit_secret}
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_veridit_2026_change_in_production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      EVIDENCE_STORAGE_PATH: /app/evidence_storage
+    ports:
+      - "8000:8000"
+    volumes:
+      - evidence_storage:/app/evidence_storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: veridit-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  evidence_storage:
+
