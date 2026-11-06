@@ -7,18 +7,18 @@ import { DashboardPage } from './pages/DashboardPage';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  const [currentView, setCurrentView] = useState<'login' | 'register'>('login');
+  const [currentView, setCurrentView] = useState<'login' | 'register' | 'capture' | 'records'>('login');
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff' }}>
       <Navbar currentView={currentView} setCurrentView={setCurrentView} />
 
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1, paddingBottom: '3rem' }}>
         {isAuthenticated ? (
-          <DashboardPage />
+          <DashboardPage initialView={currentView === 'records' ? 'records' : 'capture'} key={currentView} />
         ) : currentView === 'login' ? (
           <LoginPage
-            onSuccess={() => {}}
+            onSuccess={() => setCurrentView('capture')}
             onNavigateToRegister={() => setCurrentView('register')}
           />
         ) : (
@@ -31,12 +31,13 @@ const AppContent: React.FC = () => {
 
       <footer style={{
         textAlign: 'center',
-        padding: '1.5rem',
-        borderTop: '1px solid #1e293b',
-        color: '#64748b',
-        fontSize: '0.8rem'
+        padding: '2rem',
+        borderTop: '1px solid #e5e7eb',
+        color: '#6b7280',
+        fontSize: '0.75rem',
+        backgroundColor: '#ffffff'
       }}>
-        Veridit — Engenharia de Software I (2026.2) · UFBA · Sistema de Provas Digitais na Web
+        © Veridit — Sistema de Registro de Provas Digitais na Web · Engenharia de Software I (2026.2) · UFBA
       </footer>
     </div>
   );
@@ -49,4 +50,3 @@ export const App: React.FC = () => {
     </AuthProvider>
   );
 };
-
