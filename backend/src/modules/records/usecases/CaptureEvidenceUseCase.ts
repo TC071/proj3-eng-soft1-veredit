@@ -3,9 +3,11 @@ import { ICaptureStrategy } from '../domain/ICaptureStrategy';
 import { IIntegrityHasher } from '../domain/IIntegrityHasher';
 import { IStorageProvider } from '../domain/IStorageProvider';
 import { EvidenceRecord } from '../domain/EvidenceRecord';
+import { RecordNotFoundError } from '../domain/RecordNotFoundError';
 
 export interface CaptureEvidenceDTO {
   recordId: string;
+  userId: string;
 }
 
 /**
@@ -26,8 +28,9 @@ export class CaptureEvidenceUseCase {
 
   public async execute(dto: CaptureEvidenceDTO): Promise<EvidenceRecord> {
     const record = await this.recordRepository.findById(dto.recordId);
-    if (!record) {
-      throw new Error('Registro não encontrado.');
+    // ADR 3 (Segurança) + ADR 5: só o dono do registro (userId vindo do JWT) pode capturá-lo
+    if (!record || record.userId !== dto.userId) {
+      throw new RecordNotFoundError();
     }
 
     record.status = 'CAPTURING';

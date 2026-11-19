@@ -2,6 +2,7 @@ import { IRecordRepository } from '../domain/IRecordRepository';
 import { IStorageProvider } from '../domain/IStorageProvider';
 import { IIntegrityHasher } from '../domain/IIntegrityHasher';
 import { EvidenceRecord } from '../domain/EvidenceRecord';
+import { RecordNotFoundError } from '../domain/RecordNotFoundError';
 
 export interface RecordDetailsResult {
   record: EvidenceRecord;
@@ -21,10 +22,11 @@ export class GetRecordDetailsUseCase {
     private readonly integrityHasher: IIntegrityHasher
   ) {}
 
-  public async execute(recordId: string): Promise<RecordDetailsResult> {
+  public async execute(recordId: string, userId: string): Promise<RecordDetailsResult> {
     const record = await this.recordRepository.findById(recordId);
-    if (!record) {
-      throw new Error('Registro não encontrado.');
+    // ADR 3 (Segurança) + ADR 5: só o dono do registro (userId vindo do JWT) pode visualizá-lo
+    if (!record || record.userId !== userId) {
+      throw new RecordNotFoundError();
     }
 
     let isIntegrityValid = false;
